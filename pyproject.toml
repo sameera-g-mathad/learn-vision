@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "learn-vision"
+version = "0.0.1"
+license = { file = "LICENSE" }
+authors = [{name = "Sameer Gururaj Mathad", email = "sameeragmathad@gmail.com"}]
+keywords = ["Generative AI", "Transformers", "ViT", "VAE", "GANS", "Diffusion models"]
+requires-python = "==3.12.0"
+readme = "README.md"
+dynamic = ["dependencies", "optional-dependencies"]
+
+[tool.setuptools]
+packages = []
+
+[tool.setuptools.dynamic]
+dependencies = {file=["requirements.txt"]}
