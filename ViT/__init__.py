@@ -158,6 +158,30 @@ class MultiHeadAttention(nn.Module):
         return context_vec
 
 
+class RSNorm(nn.Module):
+    """
+    Docstring for RSNorm
+    """
+
+    def __init__(self, emb_dim: int, eps: float = 1e-5):
+        super().__init__()
+        self.eps = eps
+        self.weight = nn.Parameter(torch.ones(emb_dim)).float()
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Docstring for forward
+
+        :param x: Input tensor to apply normalization on.
+        :type x: torch.Tensor
+        :return: Normalized tensor.
+        :rtype: Tensor
+        """
+        x_mean = torch.pow(x, 2).mean(dim=-1, keepdim=True)
+        x_norm = x * torch.rsqrt(self.eps * x_mean)
+        return (x_norm * self.weight).to(x.dtype)
+
+
 class SiLU(nn.Module):
     """
     Docstring for SiLU
