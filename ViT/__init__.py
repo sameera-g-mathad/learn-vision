@@ -47,6 +47,8 @@ class MLP(nn.Module):
 
 class MultiHeadAttention(nn.Module):
     """
+    Docstring for MultiHeadAttention
+
     Mutlihead Attention class. Used to convert
     regular tokens into context vectors where each
     token learns about other tokens in the context.
@@ -156,6 +158,64 @@ class MultiHeadAttention(nn.Module):
         context_vec = self.proj(context_vec)
 
         return context_vec
+
+
+class PatchEmbedding(nn.Module):
+    """
+    Docstring for PatchEmbedding.
+    """
+
+    def __init__(
+        self, in_channels: int, embed_dim: int, patch_size: int, padding: int = 0
+    ) -> None:
+        """
+        :param in_channels: Channels of the input image, usually 3.
+        :type in_channels: int
+        :param embed_dim: The embedding dimension of each patch in the image.
+                          This is passed as the out_channels to the cnn.
+        :type embed_dim: int
+        :param patch_size: Both the kernel size and stride passed to cnn to produce
+                           patches.
+        :type patch_size: int
+        :param padding: Padding size needed to be added around the image.
+        :type padding: int
+        """
+        super().__init__()
+        self.cnn = nn.Conv2d(
+            in_channels=in_channels,
+            out_channels=embed_dim,
+            kernel_size=patch_size,
+            stride=patch_size,
+            padding=padding,
+        )
+        self.patch_size = patch_size
+        self.emb_dim = embed_dim
+
+        # to flatten the width and height of the image.
+        self.flatten = nn.Flatten(start_dim=2, end_dim=3)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Docstring for forward
+        :param x: Description
+        :type x: torch.Tensor
+        :return: Batch with each patch of embed dim defined.
+        :rtype: Tensor
+        """
+        _b, _channel, width, height = x.shape  # [batch_size, channels, width, height]
+        assert width == height, "Image width and height must match."
+        assert (
+            width % self.patch_size == 0
+        ), "Image dimensions must be divisible by preset patch size."
+
+        # output: [batch_size, embed_dim, new_width, new_height]
+        x = self.cnn(x)
+        # output: [batch_size, embed_dim, new_width * new_height]
+        x = self.flatten(x)
+
+        return x.permute(
+            0, 2, 1
+        )  # # output: [batch_size, new_width * new_height, embed_dim]
 
 
 class RSNorm(nn.Module):
